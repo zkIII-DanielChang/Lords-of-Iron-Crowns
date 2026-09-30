@@ -1,0 +1,19 @@
+# 密钥与本地配置（含真实 API Key，严禁提交）
+.env
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# 运行时产物
+memory/
+tool-output/
+outputs/*
+# 精选演示产物（可手动挑选后提交）
+!outputs/demo/
+!outputs/.gitkeep
+
+# IDE
+.vscode/
+.idea/

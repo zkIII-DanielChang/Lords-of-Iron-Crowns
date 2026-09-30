@@ -1,0 +1,11 @@
+# 核心依赖（HelloAgents 智能体框架，v1.0.0 起工具接口为 Tool/ToolRegistry/ToolResponse）
+hello-agents==1.0.0
+
+# 浏览器桥接（驱动游戏页面；无需 playwright install，直接复用系统 Edge/Chrome）
+playwright>=1.47,<2.0
+
+# 环境变量加载
+python-dotenv>=1.0
+
+# Notebook 演示环境
+jupyterlab>=4.0

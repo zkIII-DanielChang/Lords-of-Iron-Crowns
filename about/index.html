@@ -1,0 +1,359 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>铁冠诸侯：一个为了好玩而做的大战略游戏 | Daniel's Blog</title><meta name="author" content="Daniel Chang"><meta name="copyright" content="Daniel Chang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="受《十字军之王3》启发，我用原生 JavaScript 做了一个单文件大战略游戏《铁冠诸侯》：程序化地图、封君封臣、战争经济、竖屏适配、本地存档。本文同时参加创客空间社团招新的博客赛道。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="铁冠诸侯：一个为了好玩而做的大战略游戏">
+<meta property="og:url" content="https://zkiii-danielchang.github.io/2026/09/27/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AF%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:site_name" content="Daniel&#39;s Blog">
+<meta property="og:description" content="受《十字军之王3》启发，我用原生 JavaScript 做了一个单文件大战略游戏《铁冠诸侯》：程序化地图、封君封臣、战争经济、竖屏适配、本地存档。本文同时参加创客空间社团招新的博客赛道。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zkiii-danielchang.github.io/img/cover.svg">
+<meta property="article:published_time" content="2026-09-27T04:50:00.000Z">
+<meta property="article:modified_time" content="2026-09-27T04:50:00.000Z">
+<meta property="article:author" content="Daniel Chang">
+<meta property="article:tag" content="Hexo">
+<meta property="article:tag" content="JavaScript">
+<meta property="article:tag" content="创客空间">
+<meta property="article:tag" content="前端开发">
+<meta property="article:tag" content="策略游戏">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zkiii-danielchang.github.io/img/cover.svg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "铁冠诸侯：一个为了好玩而做的大战略游戏",
+  "url": "https://zkiii-danielchang.github.io/2026/09/27/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AF%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/",
+  "image": "https://zkiii-danielchang.github.io/img/cover.svg",
+  "datePublished": "2026-09-27T04:50:00.000Z",
+  "dateModified": "2026-09-27T04:50:00.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Daniel Chang",
+      "url": "https://zkiii-danielchang.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.svg"><link rel="canonical" href="https://zkiii-danielchang.github.io/2026/09/27/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AF%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css?v=5.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        const data = { value }
+
+        if (ttl != null) {
+          data.expiry = Date.now() + ttl * 86400000
+        }
+
+        localStorage.setItem(key, JSON.stringify(data))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/cinzel@5/index.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '铁冠诸侯：一个为了好玩而做的大战略游戏',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/heraldic.css"><meta name="generator" content="Hexo 8.1.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-chess-rook"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-scroll"></i><span> 典籍</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-tree"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-chess-knight"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover.svg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Daniel's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">铁冠诸侯：一个为了好玩而做的大战略游戏</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-chess-rook"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-scroll"></i><span> 典籍</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-tree"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-chess-knight"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">铁冠诸侯：一个为了好玩而做的大战略游戏</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-09-27T04:50:00.000Z" title="发表于 2026-09-27 12:50:00">2026-09-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-27T04:50:00.000Z" title="更新于 2026-09-27 12:50:00">2026-09-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/">项目介绍</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="铁冠诸侯：一个为了好玩而做的大战略游戏"><a href="#铁冠诸侯：一个为了好玩而做的大战略游戏" class="headerlink" title="铁冠诸侯：一个为了好玩而做的大战略游戏"></a>铁冠诸侯：一个为了好玩而做的大战略游戏</h1><blockquote>
+<p>一切开始于一个很朴素的念头：《十字军之王3》里那套”我的封臣的封臣不是我的封臣”的封建玩法，能不能用 JavaScript 在浏览器里跑起来？</p>
+</blockquote>
+<div class="note info flat"><p><strong>先说清楚三件事</strong>：这个项目纯粹<strong>为了好玩</strong>；它会带着三个形态同时参加学校创客空间社团招新的三个赛道——<strong>你正在读的这篇博客参加博客赛道</strong>，<strong>GitHub 上的开源仓库参加开源赛道</strong>，<strong>计划中的”用一句话操控国家”的 Agent 参加 Agent 赛道</strong>。</p>
+</div>
+
+<h2 id="这是个什么游戏"><a href="#这是个什么游戏" class="headerlink" title="这是个什么游戏"></a>这是个什么游戏</h2><p>《铁冠诸侯》是一个受 CK3（Crusader Kings III）启发的<strong>回合制大战略游戏</strong>：你扮演一个中世纪王国的统治者，管领土、收税、征兵、分封、宣战，还要熬过国王的生老病死和继承危机。</p>
+<p>它最特别的地方是<strong>交付形态</strong>——整个游戏是<strong>一个 HTML 文件</strong>。没有构建工具，没有 npm 依赖，没有后端；把它丢到任何静态服务器（比如这个博客）上，点开就能玩，手机竖屏单手可操作。</p>
+<table>
+<thead>
+<tr>
+<th align="left">系统</th>
+<th align="left">你能做什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">🗺️ <strong>程序化大地图</strong></td>
+<td align="left">Voronoi 切块生成省份，海陆&#x2F;地形&#x2F;发展度全部由种子确定性生成，每次重开都是新世界</td>
+</tr>
+<tr>
+<td align="left">👑 <strong>封君封臣</strong></td>
+<td align="left">伯爵→公爵→国王→皇帝四级封臣链；封君有直辖领地，封臣按义务缴税出兵；长按地块展开领主视角分色地图</td>
+</tr>
+<tr>
+<td align="left">💰 <strong>国家经济</strong></td>
+<td align="left">国库、人力、稳定度逐月结算；税收 &#x3D; 发展度 × 地形修正 × 建筑加成；税务所&#x2F;兵营&#x2F;市场&#x2F;要塞四种建筑</td>
+</tr>
+<tr>
+<td align="left">⚔️ <strong>军事战争</strong></td>
+<td align="left">宣战理由、征兵集结、兵牌移动、地形防守、围城破城、战争分数、强制执行需求割地、收复失地</td>
+</tr>
+<tr>
+<td align="left">🎭 <strong>人物与继承</strong></td>
+<td align="left">每个领主有名讳、三维属性、特质；逐月老化，死亡后继承人自动继位、附庸自动改换效忠</td>
+</tr>
+<tr>
+<td align="left">💾 <strong>本地存档</strong></td>
+<td align="left">每回合自动存档 + 手动存档，刷新页面接着玩；地图由种子重建，存档只存可变状态，小巧抗损坏</td>
+</tr>
+<tr>
+<td align="left">📱 <strong>竖屏界面</strong></td>
+<td align="left">底部五 Tab + 三档抽屉 + 悬浮按钮，为手机重新设计过整套交互，桌面布局也完整保留</td>
+</tr>
+</tbody></table>
+<p><em>（这里适合放几张游戏截图：政治地图、封臣链面板、领地展开视图、竖屏界面——上传后替换本行）</em></p>
+<h2 id="立刻试玩"><a href="#立刻试玩" class="headerlink" title="立刻试玩"></a>立刻试玩</h2><p>游戏就在下面，点开即玩，不用下载、不用注册。手机建议点右上角「全屏打开」——这套界面是为竖屏单手操作重做的，全屏才舒展得开。</p>
+<div class="tg-play">
+  <div class="tg-play-bar">
+    <span class="tg-play-title">⚔ 铁冠诸侯 · 可玩版本</span>
+    <a class="tg-play-link" href="/game/" target="_blank" rel="noopener">全屏打开 ↗</a>
+  </div>
+  <div class="tg-play-frame">
+    <iframe src="/game/" title="铁冠诸侯 · 在线试玩" loading="lazy" allowfullscreen></iframe>
+  </div>
+</div>
+
+<h2 id="开发历程"><a href="#开发历程" class="headerlink" title="开发历程"></a>开发历程</h2><div class="timeline "><div class='timeline-item headline'>
+        <div class='timeline-item-title'>
+          <div class='item-circle'><p>铁冠诸侯开发史</p>
+</div>
+        </div>
+      </div><div class='timeline-item'>
+        <div class='timeline-item-title'>
+          <div class='item-circle'><p>2026-09-01 · 立项与骨架</p>
+</div>
+        </div>
+        <div class='timeline-item-content'><p>确定分阶段路线：主循环、时间系统、四层画布架构搭好，空白地图能跑回合了。</p>
+</div>
+      </div><div class='timeline-item'>
+        <div class='timeline-item-title'>
+          <div class='item-circle'><p>2026-09-06 · 系统爆发周</p>
+</div>
+        </div>
+        <div class='timeline-item-content'><p>大地图（Voronoi 省份、国家配色、三级边界、LOD 文字）、UI 信息系统、国家经济、军事战争、人物封臣链一口气落地。</p>
+</div>
+      </div><div class='timeline-item'>
+        <div class='timeline-item-title'>
+          <div class='item-circle'><p>2026-09-12 · 手机适配与存档</p>
+</div>
+        </div>
+        <div class='timeline-item-content'><p>世界地图竖置，底部 Tab + 三档抽屉的竖屏界面重做；localStorage 存档系统上线，刷新不丢进度。</p>
+</div>
+      </div><div class='timeline-item'>
+        <div class='timeline-item-title'>
+          <div class='item-circle'><p>2026-09-13 · 军事打磨</p>
+</div>
+        </div>
+        <div class='timeline-item-content'><p>一键全军集结（自动全领土征兵）、军队合并、收复被占领土、进攻目标红绿框可视化。</p>
+</div>
+      </div><div class='timeline-item'>
+        <div class='timeline-item-title'>
+          <div class='item-circle'><p>2026-09-27 · 定名</p>
+</div>
+        </div>
+        <div class='timeline-item-content'><p>告别曾用名”王国风云”（那是 CK 的别称，容易撞车），正式定名**《铁冠诸侯》**——铁冠是王权，诸侯是封臣链上的每一个人。</p>
+</div>
+      </div></div>
+
+<h2 id="技术拆解"><a href="#技术拆解" class="headerlink" title="技术拆解"></a>技术拆解</h2><details class="toggle" ><summary class="toggle-button" style="">点开看：单文件里的四层画布与数据驱动</summary><div class="toggle-content"><p>整个游戏跑在一个文件里，靠的是清晰的分层：</p>
+<p><strong>渲染层</strong>：四张叠放的 Canvas——地图层（低频重绘的省份&#x2F;边界&#x2F;文字）、单位层（逐帧的兵牌）、特效层（选中呼吸动画）、UI 层（悬停高亮&#x2F;移动范围）。每层独立脏标记，相机平移缩放只在需要时重绘。</p>
+<p><strong>数据层</strong>：一切皆 <code>GameState</code>。省份是多边形 + 邻接表，国家是省份集合 + 财政，人物靠 <code>liegeId</code> 串成封臣链：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;character&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;亨利·维斯特兰&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;title&quot;</span><span class="punctuation">:</span> <span class="string">&quot;duke&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;age&quot;</span><span class="punctuation">:</span> <span class="number">43.25</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;dip&quot;</span><span class="punctuation">:</span> <span class="number">12</span><span class="punctuation">,</span> <span class="attr">&quot;mar&quot;</span><span class="punctuation">:</span> <span class="number">17</span><span class="punctuation">,</span> <span class="attr">&quot;ste&quot;</span><span class="punctuation">:</span> <span class="number">9</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;traits&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;勇猛&quot;</span><span class="punctuation">,</span> <span class="string">&quot;精明&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;liegeId&quot;</span><span class="punctuation">:</span> <span class="number">3</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>顺着 <code>liegeId</code> 往上爬，就是”伯爵→公爵→国王→皇帝”的完整链条；人物死亡时，头衔、直辖领地和所有附庸的效忠对象自动指向继承人。</p>
+<p><strong>存档层</strong>：地图几何<strong>不存档</strong>——它由种子确定性重建；存档只序列化可变状态（归属、建筑、人物、外交矩阵、军队、战争、财政），一份档 27KB 左右，损坏了也能静默降级新开一局。</p>
+</div></details>
+
+<p>几个我自己比较得意的设计决策<sup><a id="footnote-ref-1" href="#footnote-1" data-footnote-ref aria-describedby="footnote-label">1</a></sup>：</p>
+<ul>
+<li><strong>直辖领地（Demesne）</strong>：国王不会把所有土地封出去——首都圈是王室直辖，公国首府是公爵直辖。这不只是拟真，它让”直辖 vs 分封”变成了真正的策略权衡。</li>
+<li><strong>封臣义务折算</strong>：征兵时直辖领全额出兵、封臣领只出 60%，把封建契约的味道做进了数值里。</li>
+<li><strong>每回合自动存档 + 页面卸载兜底</strong>，外加删档时的禁写标志——这个 flag 是被真实 bug 教育出来的：删档后 <code>location.reload()</code> 触发 <code>pagehide</code> 兜底存档，刚删的档瞬间被写回。</li>
+</ul>
+<h2 id="三赛道参赛声明"><a href="#三赛道参赛声明" class="headerlink" title="三赛道参赛声明"></a>三赛道参赛声明</h2><div class="tabs"><div class="nav-tabs"><button type="button" class="tab active">博客赛道</button><button type="button" class="tab">开源赛道</button><button type="button" class="tab">Agent 赛道</button></div><div class="tab-contents"><div class="tab-item-content active"><p><strong>参赛作品：你正在读的这篇文章。</strong></p>
+<p>一个学生项目值不值得被认真记录？我认为值得。这篇博客本身就是用 Hexo 外挂标签写的：note 提示框、tabs 标签页、timeline 时间线、folding 折叠块、脚注、任务列表、表格、代码块——排版即内容，记录即作品。</p>
+<p>游戏已经部署在<strong>这个博客</strong>上——就是上面「立刻试玩」那一节，读完就能点开玩，阅读和试玩零跳转。单文件形态在这里显出好处：不用构建、不用装依赖，一个 iframe 就装下了。</p></div><div class="tab-item-content"><p><strong>参赛作品：GitHub 上的《铁冠诸侯》仓库。</strong></p>
+<p>单文件、零依赖的形态天生适合开源：clone 下来双击 HTML 就能跑，读代码就是读一个完整的游戏架构。仓库计划包含：</p>
+<ul>
+<li>完整源码（带 <code>SECTION:</code> 注释锚点，按系统分区）</li>
+<li>开发日志（就是本文 timeline 的展开版）</li>
+<li>Issue 模板与贡献指南——欢迎提地图生成算法、事件脚本、平衡性调整的任何 PR</li>
+</ul></div><div class="tab-item-content"><p><strong>参赛作品：用一句话操控国家的游戏 Agent。</strong></p>
+<p>终极目标：在游戏里接入 Agent，让你用自然语言直接下旨。游戏内部所有系统（征兵、移动、宣战、建造、分封）都已经是可编程接口，Agent 要做的就是把人话翻译成指令序列：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">你：全军集结，对诺德马克宣战，主攻他们的首都</span><br><span class="line">Agent：已伪造宣称（-300金）→ 全领土征兵 1,240 人 →</span><br><span class="line">       集结于首都 → 沿红框路线推进 → 围城中…</span><br></pre></td></tr></table></figure>
+
+<p>“国王陛下口谕即游戏指令”——这是策略游戏交互的一次小冒险，也是我最想做的下一步。</p></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+
+<h2 id="后续路线图"><a href="#后续路线图" class="headerlink" title="后续路线图"></a>后续路线图</h2><ul>
+<li><input checked="" disabled="" type="checkbox"> 大地图 &#x2F; 经济 &#x2F; 封臣链 &#x2F; 战争 &#x2F; 存档 &#x2F; 竖屏 UI</li>
+<li><input checked="" disabled="" type="checkbox"> <strong>部署到本博客</strong>（游戏页 <code>/game/</code> + 本文内嵌试玩）</li>
+<li><input disabled="" type="checkbox"> <strong>GitHub 开源</strong>（源码整理、README、贡献指南）</li>
+<li><input disabled="" type="checkbox"> 事件与决策引擎（派系叛乱、封臣诉求、继承危机）</li>
+<li><input disabled="" type="checkbox"> 婚姻与王朝（联姻同盟、宣称继承）</li>
+<li><input disabled="" type="checkbox"> <strong>Agent 语言操控国家</strong>（自然语言 → 游戏指令序列）</li>
+<li><input disabled="" type="checkbox"> 海军与跨海征服</li>
+</ul>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>做这个游戏的过程里，我最大的体会是：<strong>“为了好玩”是最耐用的需求文档</strong>。没有 KPI 的功能会砍，好玩的 bug 会修到凌晨。</p>
+<blockquote><p>铁冠之下，皆为诸侯；键盘之上，皆是王国。</p>
+</blockquote>
+
+<p>创客空间招新那天，欢迎来我们摊位——手机扫个码，你就是下一个国王。</p>
+<hr>
+<p>内容由 AI 生成</p>
+<section class="footnotes" data-footnotes>
+<h2 id="footnote-label" class="sr-only">Footnotes</h2>
+<ol>
+<li id="footnote-1">
+<p>顺便炫一下 markdown 脚注语法，Hexo 原生支持。本文里的彩色提示框、标签页、时间线、折叠块用的都是 Hexo 外挂标签（tag plugins），写法形如 <code>&#123;% note %&#125;</code> … <code>&#123;% endnote %&#125;</code>，不是标准 markdown，但正是 Hexo 的乐趣所在。 <a href="#footnote-ref-1" data-footnote-backref aria-label="Back to reference 1">↩</a></p>
+</li>
+</ol>
+</section>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://zkiii-danielchang.github.io">Daniel Chang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://zkiii-danielchang.github.io/2026/09/27/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AF%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/">https://zkiii-danielchang.github.io/2026/09/27/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AF%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://zkiii-danielchang.github.io" target="_blank">Daniel's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/">前端开发</a><a class="post-meta__tags" href="/tags/JavaScript/">JavaScript</a><a class="post-meta__tags" href="/tags/%E7%AD%96%E7%95%A5%E6%B8%B8%E6%88%8F/">策略游戏</a><a class="post-meta__tags" href="/tags/Hexo/">Hexo</a><a class="post-meta__tags" href="/tags/%E5%88%9B%E5%AE%A2%E7%A9%BA%E9%97%B4/">创客空间</a></div><div class="post-share"><div class="social-share" data-image="/img/cover.svg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width no-desc" href="/2026/09/27/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" title="我的第一篇博客"><img class="cover" src="/img/cover.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">我的第一篇博客</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Daniel Chang</div><div class="author-info-description">Daniel Chang 的纹章骑士博客 —— 技术、阅读与旅途见闻</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/zkIII-DanielChang" target="_blank" title="GitHub"><i class="fab fa-github" style="color: #1e3a5f;"></i></a><a class="social-icon" href="mailto:daniel-chang@live.cn" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #8b1a1a;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AF%EF%BC%9A%E4%B8%80%E4%B8%AA%E4%B8%BA%E4%BA%86%E5%A5%BD%E7%8E%A9%E8%80%8C%E5%81%9A%E7%9A%84%E5%A4%A7%E6%88%98%E7%95%A5%E6%B8%B8%E6%88%8F"><span class="toc-number">1.</span> <span class="toc-text">铁冠诸侯：一个为了好玩而做的大战略游戏</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%99%E6%98%AF%E4%B8%AA%E4%BB%80%E4%B9%88%E6%B8%B8%E6%88%8F"><span class="toc-number">1.1.</span> <span class="toc-text">这是个什么游戏</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AB%8B%E5%88%BB%E8%AF%95%E7%8E%A9"><span class="toc-number">1.2.</span> <span class="toc-text">立刻试玩</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E5%8E%86%E7%A8%8B"><span class="toc-number">1.3.</span> <span class="toc-text">开发历程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%80%E6%9C%AF%E6%8B%86%E8%A7%A3"><span class="toc-number">1.4.</span> <span class="toc-text">技术拆解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E8%B5%9B%E9%81%93%E5%8F%82%E8%B5%9B%E5%A3%B0%E6%98%8E"><span class="toc-number">1.5.</span> <span class="toc-text">三赛道参赛声明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E7%BB%AD%E8%B7%AF%E7%BA%BF%E5%9B%BE"><span class="toc-number">1.6.</span> <span class="toc-text">后续路线图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E5%90%8E"><span class="toc-number">1.7.</span> <span class="toc-text">最后</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#footnote-label"><span class="toc-number">1.8.</span> <span class="toc-text">Footnotes</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/09/27/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AF%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/" title="铁冠诸侯：一个为了好玩而做的大战略游戏"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="铁冠诸侯：一个为了好玩而做的大战略游戏"/></a><div class="content"><a class="title" href="/2026/09/27/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AF%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/" title="铁冠诸侯：一个为了好玩而做的大战略游戏">铁冠诸侯：一个为了好玩而做的大战略游戏</a><time datetime="2026-09-27T04:50:00.000Z" title="发表于 2026-09-27 12:50:00">2026-09-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/27/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" title="我的第一篇博客"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="我的第一篇博客"/></a><div class="content"><a class="title" href="/2026/09/27/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" title="我的第一篇博客">我的第一篇博客</a><time datetime="2026-09-27T03:37:41.000Z" title="发表于 2026-09-27 11:37:41">2026-09-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/26/hello-world/" title="Hello World"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hello World"/></a><div class="content"><a class="title" href="/2026/09/26/hello-world/" title="Hello World">Hello World</a><time datetime="2026-09-26T06:49:23.006Z" title="发表于 2026-09-26 14:49:23">2026-09-26</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Daniel Chang</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div></div></body></html>

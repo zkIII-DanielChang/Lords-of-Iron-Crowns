@@ -1,6 +1,6 @@
 # GitHub 用户名：zkIII-DanielChang
 
-> 赛道群内微信昵称：大川
+> 赛道群内微信昵称：智感2502张大川
 
 ## 选择路线
 
@@ -13,8 +13,8 @@
 ## 项目 / PR
 
 - 仓库：[铁冠诸侯](https://github.com/zkIII-DanielChang/Lords-of-Iron-Crowns/tree/main)
-- PR：[]()
-- Demo：[]()
+- PR：main
+- Demo：[铁冠诸侯Release](https://github.com/zkIII-DanielChang/Lords-of-Iron-Crowns/releases/tag/release)
 
 ## 训练营期间的主要增量
 
